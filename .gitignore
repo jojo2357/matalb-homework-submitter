@@ -1,4 +1,19 @@
+# Ignore project files
 .idea
+# Ignore latex build files
 build
+
+# Ignore MATLAB autosvae files
 *.asv
+
+# Ignore matlab generated files
 html
+
+# Ignore all pdf's and tex files...
+*.pdf
+*.tex
+
+# Except for the ones in the demo output and texplates
+!demo_output/*.pdf
+!demo_output/*.tex
+!texplates/*.tex

@@ -4,6 +4,9 @@ const {execSync, exec, spawn} = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * @type string
+ */
 let coverFile;
 
 //Parse Args. By default we get two meaningless args so we discard them
@@ -12,7 +15,7 @@ if (args.length === 0) {
     console.log("No arguments provided. Please provide the homework number and make sure that your m files are in HW<homework number>");
     process.exit(0);
 } else if (args.length === 1) {
-    console.log("You may want to include another ");
+    console.log("You may want to include another argument as your tex coverpage. this file goes before \\begin{document} so you can customize it however you like ");
 } else if (args.length === 2) {
     coverFile = path.join(process.cwd(), args[1]);
 } else {
@@ -116,11 +119,14 @@ allFiles.forEach((texFile) => {
         lines.splice(lines.findIndex(line => line.includes('\\end{document}')));
         fs.appendFileSync(outfile, lines.join('\n')
                 .trim()
+            //remove the contents section
                 .replace(/^\\subsection\*{Contents}\s+\\begin{itemize}\s+\\setlength{\\itemsep}{[^}]+}\s+(^\s+\\item.*$\s)+^\\end{itemize}/gm, "")
+            //now go line by line
                 .split('\n')
-                //.map(line => (line.match(/^\\(sub)?section\*\{.*\}$/) ? line.replace(/\\(sub)?section\*/, '\\$1section') : line))
+                //make section, subsection, subsubsection invisible and use addcontentstoline directly after
                 .map(line => (line.match(/^\\((?:sub){0,2}section)\*(\{[\w ]+\})$/) ? line.replace(/\\((?:sub){0,2}section)\*(\{[\w ]+\})/, "\\$1\*$2\n\\addcontentsline{toc}{$1}$2"): line))
                 .map(line => (line.startsWith('\\includegraphics') ? line.replace(/(?<=\{).*(?=\})/, "." + path.join(path.dirname(texMex).replace(path.dirname(outfile), ""), line.match(/(?<=\{).*(?=\})/)[0])) : line))
+                //IF YOU CANNOT GET MINTED TO WORK, REMOVE THESE LINES
                 .map(line => (line === "\\begin{verbatim}" ? "\\begin{minted}{matlab}" : line))
                 .map(line => (line === "\\end{verbatim}" ? "\\end{minted}" : line))
                 .join('\n')
@@ -134,10 +140,16 @@ console.log("Compiling tex");
 process.chdir(path.dirname(outfile));
 
 if (!fs.existsSync('build')) fs.mkdirSync('build');
-execSync(`pdflatex -shell-escape -synctex=1 -interaction=nonstopmode -output-directory=build '${outfile}'`);
+console.log(execSync(`pdflatex -shell-escape -synctex=1 -interaction=nonstopmode -output-directory=build '${outfile}'`).toString());
 
 fs.copyFileSync(path.join(path.dirname(outfile), 'build', path.basename(outfile.replace(/\.tex$/, ".pdf"))), outfile.replace(/\.tex$/, ".pdf"));
 
-spawn('evince', [`${outfile.replace(/\.tex$/, ".pdf")}`], {detached: true}).unref();
+// open the pdf
+try {
+    spawn('evince', [`${outfile.replace(/\.tex$/, ".pdf")}`], {detached: true}).unref();
+} catch (e) {
+    console.log("Could not open the pdf");
+    //fail silently, probably not on GNOME desktop
+}
 
 process.exit(0);

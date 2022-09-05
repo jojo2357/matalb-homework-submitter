@@ -1,0 +1,236 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage[outputdir=./build]{minted}
+\usepackage[colorlinks = true,
+            linkcolor = black,
+            urlcolor  = cyan,
+            citecolor = cyan,
+            anchorcolor = cyan
+]{hyperref}
+\newcommand{\HWVersion}{0}
+\sloppy
+\definecolor{lightgray}{gray}{0.5}
+\setlength{\parindent}{0pt}
+\usepackage{fancyhdr}
+
+\title{MATH 375 - Intro to Numerical Computing \\Homework \HWVersion}
+\date{\today}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\today}
+\lhead{MATH 375 Homework \HWVersion}
+\rfoot{Page \thepage}
+\begin{document}
+\maketitle
+\pagebreak[4]
+\tableofcontents
+\pagebreak[4]
+\section*{Basic MATLAB Script}
+\addcontentsline{toc}{section}{Basic MATLAB Script}
+
+\begin{par}
+This file demonstates how to use the tool and these comments. For more information visit:
+\end{par} \vspace{1em}
+\begin{par}
+
+\href{https://www.mathworks.com/help/matlab/matlab_prog/marking-up-matlab-comments-for-publishing.html}{MathWorks
+docs}
+
+\end{par} \vspace{1em}
+
+
+
+
+\subsection*{Printing out pi}
+\addcontentsline{toc}{subsection}{Printing out pi}
+
+\begin{par}
+Here we will show what happens when we print $\pi$ in different ways
+\end{par} \vspace{1em}
+\begin{minted}{matlab}
+pi
+disp(pi)
+fprintf("%.69f\n", pi);
+\end{minted}
+
+        \color{lightgray} \begin{verbatim}
+ans =
+
+    3.1416
+
+    3.1416
+
+3.141592653589793115997963468544185161590576171875000000000000000000000
+\end{verbatim} \color{black}
+    
+
+\subsection*{Conclusion}
+\addcontentsline{toc}{subsection}{Conclusion}
+
+\begin{par}
+As you probably noticed, the result of running the previous section is displayed right below the code chunk. Now isnt that so nice?
+\end{par} \vspace{1em}
+\begin{minted}{matlab}
+"Good bye"
+disp("Good bye")
+% oh and by the way you can still add comments
+fprintf("%.69f\n", "Good bye");
+\end{minted}
+
+        \color{lightgray} \begin{verbatim}
+ans = 
+
+    "Good bye"
+
+Good bye
+NaN
+\end{verbatim} \color{black}
+\section*{Advanced MATLAB Script}
+\addcontentsline{toc}{section}{Advanced MATLAB Script}
+
+\begin{par}
+We will be going over more advanced matlab topics and how they are displayed
+\end{par} \vspace{1em}
+
+
+
+
+\subsection*{Making a table}
+\addcontentsline{toc}{subsection}{Making a table}
+
+\begin{par}
+Not much to see here, fairly simple
+\end{par} \vspace{1em}
+\begin{minted}{matlab}
+x = linspace(0, 25, 20);
+calculated_cosine = cosine(x);
+
+% this table is output in markdown form so you should probably go use a
+% markdown renderer if it needs to be pretty
+fprintf("| x | cos(x) |\n");
+fprintf("|---|---|\n");
+
+for i = 1:length(x)
+    fprintf("| %.4f | %.4f |\n", x(i), calculated_cosine(i));
+end
+\end{minted}
+
+
+\subsection*{Making a chart}
+\addcontentsline{toc}{subsection}{Making a chart}
+
+\begin{par}
+Lets chart it!
+\end{par} \vspace{1em}
+\begin{minted}{matlab}
+plot(x,calculated_cosine);
+\end{minted}
+
+\includegraphics [width=4in]{./HW0/html/Demostration02_01.eps}
+
+
+\subsection*{Different plotting styles}
+\addcontentsline{toc}{subsection}{Different plotting styles}
+
+\begin{par}
+That was trash, lets see if log scale is better
+\end{par} \vspace{1em}
+\begin{minted}{matlab}
+yyaxis left
+plot(x,calculated_cosine);
+
+% we will add one so that the cosine is always positive and thus can be
+% plotted
+yyaxis right
+semilogy(x,1+calculated_cosine);
+\end{minted}
+
+\includegraphics [width=4in]{./HW0/html/Demostration02_02.eps}
+
+
+\subsection*{Add more x values}
+\addcontentsline{toc}{subsection}{Add more x values}
+
+\begin{par}
+maybe if we did a bigger \texttt{linspace} it would work
+\end{par} \vspace{1em}
+\begin{minted}{matlab}
+x = linspace(0, 25, 2000);
+calculated_cosine = cosine(x);
+\end{minted}
+
+
+\subsection*{Replotting}
+\addcontentsline{toc}{subsection}{Replotting}
+
+\begin{par}
+Now we will re-plot with the new x values
+\end{par} \vspace{1em}
+\begin{minted}{matlab}
+yyaxis left
+plot(x,calculated_cosine);
+
+% we will add one so that the cosine is always positive and thus can be
+% plotted
+yyaxis right
+semilogy(x,1+calculated_cosine);
+\end{minted}
+
+\includegraphics [width=4in]{./HW0/html/Demostration02_03.eps}
+
+
+\subsection*{Functions}
+\addcontentsline{toc}{subsection}{Functions}
+
+\begin{par}
+Here follows some helper functions.
+\end{par} \vspace{1em}
+\begin{par}
+
+\subsubsection*{cosine}
+\addcontentsline{toc}{subsubsection}{cosine}
+
+\end{par} \vspace{1em}
+\begin{par}
+We include that since we want it to show up underneath the functions subsection. Anyway this function is a wrapper for the cosine function. Totally useless but I included it for demo purposes
+\end{par} \vspace{1em}
+\begin{minted}{matlab}
+function Y = cosine(x)
+    Y = cos(x);
+end
+\end{minted}
+
+        \color{lightgray} \begin{verbatim}| x | cos(x) |
+|---|---|
+| 0.0000 | 1.0000 |
+| 1.3158 | 0.2523 |
+| 2.6316 | -0.8727 |
+| 3.9474 | -0.6926 |
+| 5.2632 | 0.5233 |
+| 6.5789 | 0.9566 |
+| 7.8947 | -0.0407 |
+| 9.2105 | -0.9771 |
+| 10.5263 | -0.4522 |
+| 11.8421 | 0.7490 |
+| 13.1579 | 0.8301 |
+| 14.4737 | -0.3302 |
+| 15.7895 | -0.9967 |
+| 17.1053 | -0.1726 |
+| 18.4211 | 0.9096 |
+| 19.7368 | 0.6315 |
+| 21.0526 | -0.5910 |
+| 22.3684 | -0.9297 |
+| 23.6842 | 0.1220 |
+| 25.0000 | 0.9912 |
+\end{verbatim} \color{black}
+    
+
+\subsection*{Conclusion}
+\addcontentsline{toc}{subsection}{Conclusion}
+
+\begin{par}
+Thanks for playing. Remember to like an subscribe.
+\end{par} \vspace{1em}
+\end{document}
