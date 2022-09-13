@@ -64,7 +64,23 @@ let allSources = uniqueFolders.map(folder => fs.readdirSync(folder).filter(fyle 
 //generate all source tex files
 for (let i = 0; i < allSources.length; i++) {
     process.chdir(path.dirname(allSources[i][0]));
-    let execCall = `matlab -nodisplay -nosplash -nodesktop -r "${allSources[i].map(source => `publish('${source}','latex');`).join("")}exit;"`;
+    //This line will republish all files regardless of age
+    //let execCall = `matlab -nodisplay -nosplash -nodesktop -r "${allSources[i].map(source => `publish('${source}','latex');`).join("")}exit;"`;
+    let updatedSources = allSources[i].reduce((collector, source) => {
+        let gendTex = path.join(path.dirname(source), "html", path.basename(source, ".m") + ".tex");
+        //if the generated file exists and the m file was edited after previous generation, we add it to the list
+        if (!fs.existsSync(gendTex) || fs.statSync(source).mtime > fs.statSync(gendTex).mtime)
+            collector.push(`publish('${source}','latex');`);
+        //otherwise we will just notify the user we are skipping
+        else
+            console.log("Skipping ", source);
+        return collector;
+    }, []);
+    if (!updatedSources.length) {
+        console.log("No new sources in ", allSources[i][0]);
+        continue;
+    }
+    let execCall = `matlab -nodisplay -nosplash -nodesktop -r "${updatedSources.join("")}exit;"`;
     process.stdout.write(`${i + 1} / ${allSources.length} Currently Running ${execCall}   \r`);
     execSync(execCall) || console.log("\nSOMETHING WENT WRONG");
 }
@@ -119,12 +135,12 @@ allFiles.forEach((texFile) => {
         lines.splice(lines.findIndex(line => line.includes('\\end{document}')));
         fs.appendFileSync(outfile, lines.join('\n')
                 .trim()
-            //remove the contents section
+                //remove the contents section
                 .replace(/^\\subsection\*{Contents}\s+\\begin{itemize}\s+\\setlength{\\itemsep}{[^}]+}\s+(^\s+\\item.*$\s)+^\\end{itemize}/gm, "")
-            //now go line by line
+                //now go line by line
                 .split('\n')
                 //make section, subsection, subsubsection invisible and use addcontentstoline directly after
-                .map(line => (line.match(/^\\((?:sub){0,2}section)\*(\{[\w ]+\})$/) ? line.replace(/\\((?:sub){0,2}section)\*(\{[\w ]+\})/, "\\$1\*$2\n\\addcontentsline{toc}{$1}$2"): line))
+                .map(line => (line.match(/^\\((?:sub){0,2}section)\*(\{[\w ]+\})$/) ? line.replace(/\\((?:sub){0,2}section)\*(\{[\w ]+\})/, "\\$1\*$2\n\\addcontentsline{toc}{$1}$2") : line))
                 .map(line => (line.startsWith('\\includegraphics') ? line.replace(/(?<=\{).*(?=\})/, "." + path.join(path.dirname(texMex).replace(path.dirname(outfile), ""), line.match(/(?<=\{).*(?=\})/)[0])) : line))
                 //IF YOU CANNOT GET MINTED TO WORK, REMOVE THESE LINES
                 .map(line => (line === "\\begin{verbatim}" ? "\\begin{minted}{matlab}" : line))

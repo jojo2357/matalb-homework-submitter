@@ -69,6 +69,11 @@ Thanks for asking. Here is a basic rundown of how the program works.
 5. Lastly, it will combine all of the required packages, along with the coverpage tex you supplied to make an output
    file. On windows you will need to manually open it, on GNOME desktops it will open automatically.
 
+### Behavioral Notes
+
+The program will compare edit times of source `.m` files and their generated `.tex` files. If the `.tex` file is younger
+than the `.m` file, it will no ask MATLAB to regenerate that file in order to speed up execution
+
 #### Easter egg
 
 If you include LaTeX in
@@ -82,4 +87,6 @@ are created for your convenience:
 
 #### License
 
-This repository is released under the Glorious Peoples License (GPL), which can be found in LICENSE. All files in this repository are covered by the terms of said license, which can also be found at [https://www.gnu.org/licenses/](https://www.gnu.org/licenses/)
+This repository is released under the Glorious Peoples License (GPL), which can be found in LICENSE. All files in this
+repository are covered by the terms of said license, which can also be found
+at [https://www.gnu.org/licenses/](https://www.gnu.org/licenses/)
