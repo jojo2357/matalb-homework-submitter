@@ -70,7 +70,7 @@ for (let i = 0; i < allSources.length; i++) {
         let gendTex = path.join(path.dirname(source), "html", path.basename(source, ".m") + ".tex");
         //if the generated file exists and the m file was edited after previous generation, we add it to the list
         if (!fs.existsSync(gendTex) || fs.statSync(source).mtime > fs.statSync(gendTex).mtime)
-            collector.push(`publish('${source}','latex');`);
+            collector.push(`publish('${source}',format='latex'${path.basename(source).startsWith("Util") ? ",evalCode=false" : ""});`);
         //otherwise we will just notify the user we are skipping
         else
             console.log("Skipping ", source);
@@ -81,7 +81,7 @@ for (let i = 0; i < allSources.length; i++) {
         continue;
     }
     let execCall = `matlab -nodisplay -nosplash -nodesktop -r "${updatedSources.join("")}exit;"`;
-    process.stdout.write(`${i + 1} / ${allSources.length} Currently Running ${execCall}   \r`);
+    process.stdout.write(`${i + 1} / ${allSources.length} Currently Running ${execCall}   \r\n`);
     execSync(execCall) || console.log("\nSOMETHING WENT WRONG");
 }
 
@@ -140,7 +140,7 @@ allFiles.forEach((texFile) => {
                 //now go line by line
                 .split('\n')
                 //make section, subsection, subsubsection invisible and use addcontentstoline directly after
-                .map(line => (line.match(/^\\((?:sub){0,2}section)\*(\{[\w ]+\})$/) ? line.replace(/\\((?:sub){0,2}section)\*(\{[\w ]+\})/, "\\$1\*$2\n\\addcontentsline{toc}{$1}$2") : line))
+                .map(line => (line.match(/^\\((?:sub){0,2}section)\*(\{[\w ()]+\})$/) ? line.replace(/\\((?:sub){0,2}section)\*(\{[\w ()]+\})/, "\\$1\*$2\n\\addcontentsline{toc}{$1}$2") : line))
                 .map(line => (line.startsWith('\\includegraphics') ? line.replace(/(?<=\{).*(?=\})/, "." + path.join(path.dirname(texMex).replace(path.dirname(outfile), ""), line.match(/(?<=\{).*(?=\})/)[0])) : line))
                 //IF YOU CANNOT GET MINTED TO WORK, REMOVE THESE LINES
                 .map(line => (line === "\\begin{verbatim}" ? "\\begin{minted}{matlab}" : line))
